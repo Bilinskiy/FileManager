@@ -32,8 +32,8 @@ class ManagerFile: ManagerFileProtocol {
     let currentCatalog = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     
     do {
-      let directoryContent = try fileManager.contentsOfDirectory(at: currentCatalog, includingPropertiesForKeys: nil)
-      return directoryContent.filter({$0.lastPathComponent != ".DS_Store"})
+      let directoryContent = try fileManager.contentsOfDirectory(at: currentCatalog, includingPropertiesForKeys: nil).filter({$0.lastPathComponent != ".DS_Store"})
+      return directoryContent
     } catch {
         fatalError("Unable to read directory")
     }
