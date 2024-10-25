@@ -14,11 +14,12 @@ class ViewController: UIViewController {
   
   lazy var tableView: UITableView = {
     var table = UITableView()
-    table.rowHeight = 40
+    table.separatorInset = .zero
     table.layer.cornerRadius = 15
     let refresh = UIRefreshControl()
     table.refreshControl = refresh
     refresh.addTarget(self, action: #selector(updateSwipeTable), for: .valueChanged)
+    table.register(UINib(nibName: TableViewCell.key, bundle: nil), forCellReuseIdentifier: TableViewCell.key)
     table.dataSource = self
     table.delegate = self
     return table
@@ -36,8 +37,6 @@ class ViewController: UIViewController {
     
     settingsNavigationController()
 
-    
-    
     updateViewConstraints()
   }
   
@@ -54,10 +53,10 @@ class ViewController: UIViewController {
     alertCreateFolder.textFields?.first?.placeholder = "Имя"
     
     let okButton = UIAlertAction(title: "Создать", style: .cancel) { _ in
-      guard let textFields = alertCreateFolder.textFields?.first?.text, !textFields.isEmpty else {
+      guard let textFields = alertCreateFolder.textFields?.first?.text?.trimmingCharacters(in: .whitespaces), !textFields.isEmpty else {
         self.errorAlert("Заполните поле Имя")
         return}
-      
+
      if self.fileManager.createFolder(textFields) {
         self.errorAlert("Такая папка существует")
       }
@@ -105,7 +104,6 @@ class ViewController: UIViewController {
     
   }
 
-
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
@@ -114,9 +112,9 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let f = UITableViewCell()
-    f.textLabel?.text = "\(fileManager.directoryContent()[indexPath.row].lastPathComponent)"
-    return f
+    guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.key, for: indexPath) as? TableViewCell else {return UITableViewCell()}
+    cell.nameFolderLabel.text = "\(fileManager.directoryContent()[indexPath.row].lastPathComponent)"
+    return cell
   }
   
   
