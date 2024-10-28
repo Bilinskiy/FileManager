@@ -1,5 +1,5 @@
 //
-//  TableViewCell.swift
+//  FolderTableViewCell.swift
 //  FileManager
 //
 //  Created by Дмитрий Билинский on 25.10.24.
@@ -7,13 +7,13 @@
 
 import UIKit
 
-class TableViewCell: UITableViewCell {
+class FolderTableViewCell: UITableViewCell {
   
-  static let key = "TableViewCell"
+  static let key = "FolderTableViewCell"
 
   lazy var imageFolder: UIImageView = {
     var image =  UIImageView(image: UIImage(systemName: "folder"))
-    image.frame = CGRect(x: 0, y: 0, width: 36, height: 36)
+    image.contentMode = .scaleAspectFit
     image.tintColor = .black
     return image
   }()
@@ -32,6 +32,8 @@ class TableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
+    
+      
       contentView.addSubview(imageFolder)
       contentView.addSubview(nameFolderLabel)
 
@@ -43,8 +45,10 @@ class TableViewCell: UITableViewCell {
     super.updateConstraints()
     
     imageFolder.snp.makeConstraints { make in
+      make.width.equalTo(30)
+      make.height.equalTo(30)
       make.centerY.equalToSuperview()
-      make.leading.equalToSuperview()
+      make.leading.equalToSuperview().inset(16)
     }
     
     nameFolderLabel.snp.makeConstraints { make in
