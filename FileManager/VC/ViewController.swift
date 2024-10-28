@@ -10,12 +10,15 @@ import SnapKit
 
 class ViewController: UIViewController {
     
-  let fileManager: ManagerFileProtocol = ManagerFile()
+  var fileManager: ManagerFileProtocol = ManagerFile()
+  
+  let fullImageView = FullImageViewController()
   
   lazy var tableView: UITableView = {
     var table = UITableView()
-    table.separatorInset = .zero
+   // table.separatorInset = .zero
     table.layer.cornerRadius = 15
+    table.rowHeight = 44
     let refresh = UIRefreshControl()
     table.refreshControl = refresh
     refresh.addTarget(self, action: #selector(updateSwipeTable), for: .valueChanged)
@@ -110,13 +113,14 @@ class ViewController: UIViewController {
     present(imagePicker, animated: true)
   }
   
-  func settingsNavigationController () {
-    navigationItem.title = "Просмотр каталога"
+  func settingsNavigationController() {
+    let color: [UIColor] = [.red, .yellow, .green, .orange, .brown]
+    navigationItem.title = fileManager.currentCatalog.lastPathComponent
     navigationItem.rightBarButtonItems = [rightBarButtonPlusFolder]
     navigationController?.navigationBar.tintColor = .black
     
     navigationController?.navigationBar.scrollEdgeAppearance = UINavigationBarAppearance()
-    navigationController?.navigationBar.scrollEdgeAppearance?.backgroundColor = .orange
+    navigationController?.navigationBar.scrollEdgeAppearance?.backgroundColor = color.randomElement()
    
   }
   
@@ -142,8 +146,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     guard let folderCell = tableView.dequeueReusableCell(withIdentifier: FolderTableViewCell.key, for: indexPath) as? FolderTableViewCell, let imageCell = tableView.dequeueReusableCell(withIdentifier: ImageTableViewCell.key, for: indexPath) as? ImageTableViewCell else {return UITableViewCell()}
  
     if let image = UIImage(contentsOfFile: fileManager.directoryContent()[indexPath.row].path()) {
-    
-      imageCell.imageView?.image = image
+     
+      imageCell.image.image = image.preparingThumbnail(of: CGSize(width: 60, height: 60))
       return imageCell
       
     } else {
@@ -151,6 +155,23 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
       folderCell.nameFolderLabel.text = "\(fileManager.directoryContent()[indexPath.row].lastPathComponent)"
       return folderCell
       
+    }
+  }
+  
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
+    if let image = UIImage(contentsOfFile: fileManager.directoryContent()[indexPath.row].path()) {
+      fullImageView.imageView.image = image
+      fullImageView.modalPresentationStyle = .formSheet
+      present(fullImageView, animated: true)
+    
+    } else {
+      
+      let folder = fileManager.directoryContent()[indexPath.row]
+      let viewFolder = ViewController()
+      viewFolder.fileManager.currentCatalog = folder
+      
+      navigationController?.pushViewController(viewFolder, animated: true)
     }
   }
   

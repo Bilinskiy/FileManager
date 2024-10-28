@@ -8,6 +8,8 @@
 import Foundation
 
 protocol ManagerFileProtocol {
+  var fileManager: FileManager {get}
+  var currentCatalog: URL {get set}
   func createFolder(_ nameFolder: String) -> Bool
   func directoryContent() -> [URL]
   func addImage(URL: String, data: Data?)
@@ -15,10 +17,10 @@ protocol ManagerFileProtocol {
 
 class ManagerFile: ManagerFileProtocol {
   
-  let fileManager = FileManager.default
-
+  var fileManager = FileManager.default
+  var currentCatalog = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+  
   func createFolder(_ nameFolder: String) -> Bool {
-    let currentCatalog = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     let newFolder = currentCatalog.appending(path: nameFolder)
     
     do {
@@ -30,20 +32,16 @@ class ManagerFile: ManagerFileProtocol {
   }
   
   func directoryContent() -> [URL] {
-    let currentCatalog = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    
     do {
       let directoryContent = try fileManager.contentsOfDirectory(at: currentCatalog, includingPropertiesForKeys: nil).filter({$0.lastPathComponent != ".DS_Store"})
       return directoryContent
     } catch {
-        fatalError("Unable to read directory")
+        fatalError()
     }
     
   }
   
   func addImage(URL: String, data: Data?) {
-    let currentCatalog = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    
     let newImageURL = currentCatalog.appending(path: URL)
 
     do {

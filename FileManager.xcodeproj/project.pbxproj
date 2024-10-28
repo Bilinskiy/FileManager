@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D069F70A2CCE3F5500341643 /* ImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D069F7092CCE3F5500341643 /* ImageTableViewCell.swift */; };
+		D069F70F2CCF8B3D00341643 /* FullImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */; };
 		D097213D2CCA8CDB00E9050B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D097213C2CCA8CDB00E9050B /* SnapKit */; };
 		D0FD00152CCB963F000C2F63 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD000C2CCB963F000C2F63 /* AppDelegate.swift */; };
 		D0FD00172CCB963F000C2F63 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD00122CCB963F000C2F63 /* SceneDelegate.swift */; };
@@ -20,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		D069F7092CCE3F5500341643 /* ImageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTableViewCell.swift; sourceTree = "<group>"; };
+		D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullImageViewController.swift; sourceTree = "<group>"; };
 		D09721052CCA869800E9050B /* FileManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FileManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0FD000C2CCB963F000C2F63 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0FD000D2CCB963F000C2F63 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -64,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				D0FD00132CCB963F000C2F63 /* ViewController.swift */,
+				D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */,
 			);
 			path = VC;
 			sourceTree = "<group>";
@@ -176,6 +179,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D069F70F2CCF8B3D00341643 /* FullImageViewController.swift in Sources */,
 				D0FD00202CCBC802000C2F63 /* FolderTableViewCell.swift in Sources */,
 				D0FD00152CCB963F000C2F63 /* AppDelegate.swift in Sources */,
 				D0FD00172CCB963F000C2F63 /* SceneDelegate.swift in Sources */,
