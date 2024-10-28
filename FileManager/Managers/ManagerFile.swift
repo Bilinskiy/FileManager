@@ -10,6 +10,7 @@ import Foundation
 protocol ManagerFileProtocol {
   func createFolder(_ nameFolder: String) -> Bool
   func directoryContent() -> [URL]
+  func addImage(URL: String, data: Data?)
 }
 
 class ManagerFile: ManagerFileProtocol {
@@ -36,6 +37,19 @@ class ManagerFile: ManagerFileProtocol {
       return directoryContent
     } catch {
         fatalError("Unable to read directory")
+    }
+    
+  }
+  
+  func addImage(URL: String, data: Data?) {
+    let currentCatalog = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    
+    let newImageURL = currentCatalog.appending(path: URL)
+
+    do {
+      try data?.write(to: newImageURL)
+    } catch {
+      fatalError()
     }
     
   }

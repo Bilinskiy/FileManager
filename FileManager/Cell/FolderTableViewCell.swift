@@ -1,5 +1,5 @@
 //
-//  TableViewCell.swift
+//  FolderTableViewCell.swift
 //  FileManager
 //
 //  Created by Дмитрий Билинский on 25.10.24.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-class TableViewCell: UITableViewCell {
+class FolderTableViewCell: UITableViewCell {
   
-  static let key = "TableViewCell"
+  static let key = "FolderTableViewCell"
 
   lazy var imageFolder: UIImageView = {
     var image =  UIImageView(image: UIImage(systemName: "folder"))
