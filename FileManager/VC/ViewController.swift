@@ -9,15 +9,17 @@ import UIKit
 import SnapKit
 
 class ViewController: UIViewController {
-    
-  var fileManager: ManagerFileProtocol = ManagerFile()
   
-  let fullImageView = FullImageViewController()
+  private var content: [Directory] = []
+
+  private var fileManager: ManagerFileProtocol = ManagerFile()
+  
+  private let fullImageView = FullImageViewController()
   
   lazy var tableView: UITableView = {
     var table = UITableView()
    // table.separatorInset = .zero
-    table.layer.cornerRadius = 15
+   // table.layer.cornerRadius = 15
     table.rowHeight = 44
     let refresh = UIRefreshControl()
     table.refreshControl = refresh
@@ -42,9 +44,19 @@ class ViewController: UIViewController {
     settingsNavigationController()
 
     updateViewConstraints()
+
+    fetchContent()
+  }
+  
+  func fetchContent() {
+    content.removeAll()
+    let contentDirectory = fileManager.directoryContent()
+    content.append(Directory(type: .folder, arrayURL: contentDirectory.folder ))
+    content.append(Directory(type: .image, arrayURL:  contentDirectory.image))
   }
   
   @objc func updateSwipeTable() {
+    fetchContent()
     tableView.reloadData()
     tableView.refreshControl?.endRefreshing()
   }
@@ -79,12 +91,21 @@ class ViewController: UIViewController {
         self.errorAlert("Заполните поле Имя")
         return}
 
-     if self.fileManager.createFolder(textFields) {
-        self.errorAlert("Такая папка существует")
-      }
+     if let folderURL = self.fileManager.createFolder(textFields) {
+       
+       for i in 0..<self.content.count {
+         if self.content[i].type == .folder {
+           self.content[i].appendNewFile(folderURL)
+         }
+       }
+       
+     } else {
+       self.errorAlert("Такая папка существует")
+     }
       
       self.tableView.reloadData()
     }
+    
     let cancelButton = UIAlertAction(title: "Отмена", style: .destructive)
     
     alertCreateFolder.addAction(okButton)
@@ -137,52 +158,53 @@ class ViewController: UIViewController {
 
 }
 
-extension ViewController: UITableViewDataSource, UITableViewDelegate {
+extension ViewController: UITableViewDataSource, UITableViewDelegate, UICollectionViewDelegateFlowLayout {
+  
+  func numberOfSections(in tableView: UITableView) -> Int {
+    content.count
+  }
+
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    fileManager.directoryContent().count
+    if section == 0 {
+      return content.filter({$0.type == .folder})[0].arrayURL.count
+    } else {
+      return content.filter({$0.type == .image})[0].arrayURL.count
+    }
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let folderCell = tableView.dequeueReusableCell(withIdentifier: FolderTableViewCell.key, for: indexPath) as? FolderTableViewCell, let imageCell = tableView.dequeueReusableCell(withIdentifier: ImageTableViewCell.key, for: indexPath) as? ImageTableViewCell else {return UITableViewCell()}
- 
-    if let image = UIImage(contentsOfFile: fileManager.directoryContent()[indexPath.row].path()) {
-     
-      imageCell.image.image = image.preparingThumbnail(of: CGSize(width: 60, height: 60))
-      return imageCell
-      
-    } else {
-      
-      folderCell.nameFolderLabel.text = "\(fileManager.directoryContent()[indexPath.row].lastPathComponent)"
+
+    if indexPath.section == 0 {
+      folderCell.nameFolderLabel.text = "\(content.filter({$0.type == .folder})[0].arrayURL[indexPath.row].lastPathComponent)"
       return folderCell
-      
+    } else {
+      let image = UIImage(contentsOfFile: content.filter({$0.type == .image})[0].arrayURL[indexPath.row].path())
+      imageCell.image.image = image?.preparingThumbnail(of: CGSize(width: 60, height: 60))
+      return imageCell
     }
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
-    if let image = UIImage(contentsOfFile: fileManager.directoryContent()[indexPath.row].path()) {
+    if indexPath.section == 1  {
+      let image = UIImage(contentsOfFile: content.filter({$0.type == .image})[0].arrayURL[indexPath.row].path())
       fullImageView.imageView.image = image
       fullImageView.modalPresentationStyle = .formSheet
       present(fullImageView, animated: true)
-    
     } else {
-      
-      let folder = fileManager.directoryContent()[indexPath.row]
+      let folder = content.filter({$0.type == .folder})[0].arrayURL[indexPath.row]
       let viewFolder = ViewController()
       viewFolder.fileManager.currentCatalog = folder
-      
       navigationController?.pushViewController(viewFolder, animated: true)
     }
   }
-  
-  
   
 }
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-    
     guard let imageURL = info[.imageURL] as? URL,
           let originalImage = info[.originalImage] as? UIImage
       else {return}
@@ -191,11 +213,15 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
       
     fileManager.addImage(URL: imageURL.lastPathComponent, data: data)
     
-    tableView.reloadData()
+    for i in 0..<content.count {
+      if content[i].type == .image {
+        content[i].appendNewFile(imageURL)
+      }
+    }
     
+    tableView.reloadData()
     dismiss(animated: true)
   }
-  
-  
+
 }
 
