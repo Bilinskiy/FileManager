@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0094ACB2CD22AE000A72D28 /* FolderCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0094ACA2CD22AE000A72D28 /* FolderCollectionViewCell.swift */; };
+		D0094ACD2CD2329700A72D28 /* ImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0094ACC2CD2329700A72D28 /* ImageCollectionViewCell.swift */; };
+		D0094AD02CD247BC00A72D28 /* HeaderCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0094ACF2CD247BC00A72D28 /* HeaderCollectionView.swift */; };
 		D069F70A2CCE3F5500341643 /* ImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D069F7092CCE3F5500341643 /* ImageTableViewCell.swift */; };
 		D069F70F2CCF8B3D00341643 /* FullImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */; };
 		D097213D2CCA8CDB00E9050B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D097213C2CCA8CDB00E9050B /* SnapKit */; };
@@ -21,6 +24,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D0094ACA2CD22AE000A72D28 /* FolderCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderCollectionViewCell.swift; sourceTree = "<group>"; };
+		D0094ACC2CD2329700A72D28 /* ImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCollectionViewCell.swift; sourceTree = "<group>"; };
+		D0094ACF2CD247BC00A72D28 /* HeaderCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderCollectionView.swift; sourceTree = "<group>"; };
 		D069F7092CCE3F5500341643 /* ImageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTableViewCell.swift; sourceTree = "<group>"; };
 		D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullImageViewController.swift; sourceTree = "<group>"; };
 		D09721052CCA869800E9050B /* FileManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FileManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,11 +53,40 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D0094ACE2CD2476800A72D28 /* Header */ = {
+			isa = PBXGroup;
+			children = (
+				D0094ACF2CD247BC00A72D28 /* HeaderCollectionView.swift */,
+			);
+			path = Header;
+			sourceTree = "<group>";
+		};
+		D065CB352CD21F8C00E14B95 /* Struct */ = {
+			isa = PBXGroup;
+			children = (
+				D0C11A762CD0F0D4004D54C5 /* Directory.swift */,
+			);
+			path = Struct;
+			sourceTree = "<group>";
+		};
+		D065CB362CD21FB100E14B95 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				D0FD000C2CCB963F000C2F63 /* AppDelegate.swift */,
+				D0FD00122CCB963F000C2F63 /* SceneDelegate.swift */,
+				D0FD00112CCB963F000C2F63 /* LaunchScreen.storyboard */,
+				D0FD000D2CCB963F000C2F63 /* Assets.xcassets */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
 		D069F70B2CCF77F400341643 /* Cell */ = {
 			isa = PBXGroup;
 			children = (
 				D0FD001E2CCBC802000C2F63 /* FolderTableViewCell.swift */,
 				D069F7092CCE3F5500341643 /* ImageTableViewCell.swift */,
+				D0094ACA2CD22AE000A72D28 /* FolderCollectionViewCell.swift */,
+				D0094ACC2CD2329700A72D28 /* ImageCollectionViewCell.swift */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -92,14 +127,12 @@
 		D0FD00142CCB963F000C2F63 /* FileManager */ = {
 			isa = PBXGroup;
 			children = (
-				D0FD000C2CCB963F000C2F63 /* AppDelegate.swift */,
-				D0FD00122CCB963F000C2F63 /* SceneDelegate.swift */,
-				D0FD00112CCB963F000C2F63 /* LaunchScreen.storyboard */,
-				D0FD000D2CCB963F000C2F63 /* Assets.xcassets */,
 				D0FD000F2CCB963F000C2F63 /* Info.plist */,
-				D0C11A762CD0F0D4004D54C5 /* Directory.swift */,
+				D065CB362CD21FB100E14B95 /* Resource */,
+				D065CB352CD21F8C00E14B95 /* Struct */,
 				D069F70C2CCF780500341643 /* Managers */,
 				D069F70D2CCF781000341643 /* VC */,
+				D0094ACE2CD2476800A72D28 /* Header */,
 				D069F70B2CCF77F400341643 /* Cell */,
 			);
 			path = FileManager;
@@ -183,10 +216,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D069F70F2CCF8B3D00341643 /* FullImageViewController.swift in Sources */,
+				D0094ACB2CD22AE000A72D28 /* FolderCollectionViewCell.swift in Sources */,
 				D0FD00202CCBC802000C2F63 /* FolderTableViewCell.swift in Sources */,
 				D0FD00152CCB963F000C2F63 /* AppDelegate.swift in Sources */,
+				D0094AD02CD247BC00A72D28 /* HeaderCollectionView.swift in Sources */,
 				D0FD00172CCB963F000C2F63 /* SceneDelegate.swift in Sources */,
 				D0FD00182CCB963F000C2F63 /* ViewController.swift in Sources */,
+				D0094ACD2CD2329700A72D28 /* ImageCollectionViewCell.swift in Sources */,
 				D0FD001D2CCB98A8000C2F63 /* ManagerFile.swift in Sources */,
 				D069F70A2CCE3F5500341643 /* ImageTableViewCell.swift in Sources */,
 				D0C11A772CD0F0D4004D54C5 /* Directory.swift in Sources */,
