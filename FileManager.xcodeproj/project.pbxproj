@@ -102,8 +102,8 @@
 		D069F70D2CCF781000341643 /* VC */ = {
 			isa = PBXGroup;
 			children = (
-				D0FD00132CCB963F000C2F63 /* ViewController.swift */,
 				D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */,
+				D0FD00132CCB963F000C2F63 /* ViewController.swift */,
 			);
 			path = VC;
 			sourceTree = "<group>";

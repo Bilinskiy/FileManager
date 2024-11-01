@@ -219,51 +219,57 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
   }
   
   func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    if !fileManager.filterContent(.folder).isEmpty, section == 0 {
-      return "Folder"
-    } else if !fileManager.filterContent(.image).isEmpty, section == 1  {
-      return "Image"
-    } else {
+    switch TypeDirectory(rawValue: section) {
+    case .folder:
+      return !fileManager.filterContent(.folder).isEmpty ? "Folder" : ""
+    case .image:
+      return !fileManager.filterContent(.image).isEmpty ? "Image" : ""
+    default:
       return ""
     }
   }
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    if section == 0 {
+    switch TypeDirectory(rawValue: section) {
+    case .folder:
       return fileManager.filterContent(.folder).count
-    } else {
+    case .image:
       return fileManager.filterContent(.image).count
+    default:
+      return 0
     }
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-    if indexPath.section == 0 {
+    switch TypeDirectory(rawValue: indexPath.section) {
+    case .folder:
       guard let folderCell = tableView.dequeueReusableCell(withIdentifier: FolderTableViewCell.key, for: indexPath) as? FolderTableViewCell else {return UITableViewCell()}
-      
       folderCell.nameFolderLabel.text = "\(fileManager.filterContent(.folder)[indexPath.row].lastPathComponent)"
       return folderCell
-    } else {
+    case .image:
       guard let imageCell = tableView.dequeueReusableCell(withIdentifier: ImageTableViewCell.key, for: indexPath) as? ImageTableViewCell else {return UITableViewCell()}
-      
       let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
       imageCell.image.image = image?.preparingThumbnail(of: CGSize(width: 60, height: 60))
       return imageCell
+    default:
+      return UITableViewCell()
     }
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
-    if indexPath.section == 1  {
-      let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-      fullImageView.imageView.image = image
-      fullImageView.modalPresentationStyle = .formSheet
-      present(fullImageView, animated: true)
-    } else {
+    switch TypeDirectory(rawValue: indexPath.section) {
+    case .folder:
       let folder = fileManager.filterContent(.folder)[indexPath.row]
       let viewFolder = ViewController()
       viewFolder.fileManager.currentCatalog = folder
       navigationController?.pushViewController(viewFolder, animated: true)
+    case .image:
+      let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
+      fullImageView.imageView.image = image
+      fullImageView.modalPresentationStyle = .formSheet
+      present(fullImageView, animated: true)
+    default:
+      break
     }
   }
   
@@ -278,14 +284,15 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
   func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
     guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderCollectionView.key, for: indexPath) as? HeaderCollectionView else {return UICollectionReusableView()}
     if kind == UICollectionView.elementKindSectionHeader {
-      if !fileManager.filterContent(.folder).isEmpty, indexPath.section == 0 {
-        header.nameHeaderLabel.text = "Folder"
+      switch TypeDirectory(rawValue: indexPath.section) {
+      case .folder:
+        header.nameHeaderLabel.text = !fileManager.filterContent(.folder).isEmpty ? "Folder" : ""
         return header
-      } else if !fileManager.filterContent(.image).isEmpty, indexPath.section == 1 {
-        header.nameHeaderLabel.text = "Image"
+      case .image:
+        header.nameHeaderLabel.text = !fileManager.filterContent(.image).isEmpty ? "Image" : ""
         return header
-      } else {
-        return header
+      default:
+        return UICollectionReusableView()
       }
     }
     return UICollectionReusableView()
@@ -296,54 +303,57 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
   }
   
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    if section == 0 {
+    switch TypeDirectory(rawValue: section) {
+    case .folder:
       return fileManager.filterContent(.folder).count
-    } else {
+    case .image:
       return fileManager.filterContent(.image).count
+    default:
+      return 0
     }
   }
   
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    
-    if indexPath.section == 0 {
+    switch TypeDirectory(rawValue: indexPath.section) {
+    case .folder:
       guard let folderCell = collectionView.dequeueReusableCell(withReuseIdentifier: FolderCollectionViewCell.key, for: indexPath) as? FolderCollectionViewCell else {return UICollectionViewCell()}
-    
       folderCell.nameFolderLabel.text = "\(fileManager.filterContent(.folder)[indexPath.row].lastPathComponent)"
-      
       return folderCell
-    } else {
+    case .image:
       guard let imageCell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCollectionViewCell.key, for: indexPath) as? ImageCollectionViewCell else {return UICollectionViewCell()}
-     
       let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
       imageCell.image.image = image?.preparingThumbnail(of: CGSize(width: 200, height: 200))
-
       return imageCell
+    default:
+      return UICollectionViewCell()
     }
-  
-
   }
   
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    if indexPath.section == 0 {
+    switch TypeDirectory(rawValue: indexPath.section) {
+    case .folder:
       return CGSize(width: 70, height: 70)
-    } else {
+    case .image:
       return CGSize(width: 100, height: 100)
+    default:
+      return CGSize()
     }
-    
-    
   }
   
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    if indexPath.section == 1  {
-      let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-      fullImageView.imageView.image = image
-      fullImageView.modalPresentationStyle = .formSheet
-      present(fullImageView, animated: true)
-    } else {
+    switch TypeDirectory(rawValue: indexPath.section) {
+    case .folder:
       let folder = fileManager.filterContent(.folder)[indexPath.row]
       let viewFolder = ViewController()
       viewFolder.fileManager.currentCatalog = folder
       navigationController?.pushViewController(viewFolder, animated: true)
+    case .image:
+      let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
+      fullImageView.imageView.image = image
+      fullImageView.modalPresentationStyle = .formSheet
+      present(fullImageView, animated: true)
+    default:
+      break
     }
   }
   

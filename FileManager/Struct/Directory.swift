@@ -7,9 +7,9 @@
 
 import Foundation
 
-enum TypeDirectory {
-  case image
-  case folder
+enum TypeDirectory: Int {
+  case folder = 0
+  case image = 1
 }
 
 struct Directory {

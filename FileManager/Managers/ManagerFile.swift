@@ -24,7 +24,7 @@ class ManagerFile: ManagerFileProtocol {
   var currentCatalog = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
   func filterContent(_ type: TypeDirectory) -> [URL]  {
-    return content.filter({$0.type == type})[0].arrayURL
+     content.filter({$0.type == type})[0].arrayURL
   }
 
   func createFolder(_ nameFolder: String) -> URL? {
