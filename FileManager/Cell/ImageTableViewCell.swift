@@ -16,7 +16,7 @@ class ImageTableViewCell: UITableViewCell {
     var image = UIImageView()
     image.contentMode = .scaleAspectFill
     image.layer.masksToBounds = true
-    image.layer.cornerRadius = 15
+    image.layer.cornerRadius = 8
     return image
   }()
   
@@ -28,7 +28,7 @@ class ImageTableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
-      contentView.backgroundColor = selected ?  .red : .clear
+      contentView.backgroundColor = selected ?  .red : .bgColorFolderCollection
       
       contentView.addSubview(image)
  

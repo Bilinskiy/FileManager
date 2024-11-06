@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import KeychainSwift
 
 enum ViewMode {
   case select
@@ -14,7 +15,7 @@ enum ViewMode {
 }
 
 class ViewController: UIViewController {
-
+  
   private var viewMode: ViewMode = .view {
     didSet {
       switch viewMode {
@@ -31,13 +32,22 @@ class ViewController: UIViewController {
     }
   }
   
+  private let keychain = KeychainSwift()
   private var fileManager: ManagerFileProtocol = ManagerFile()
-  private let fullImageView = FullImageViewController()
   private var arrayDelURL: [URL] = [] {
     didSet {
       rightBarButtonTrash.isEnabled = !arrayDelURL.isEmpty
     }
   }
+  
+  lazy var emptyDirectoryLabel: UILabel = {
+    var label = UILabel()
+    label.font = label.font.withSize(25)
+    label.textColor = .colorBlackNav
+    label.text = "КАТАЛОГ ПУСТОЙ"
+    label.layer.opacity = 0.4
+    return label
+  }()
   
   lazy var segmentControl: UISegmentedControl = {
     var segment = UISegmentedControl()
@@ -66,12 +76,13 @@ class ViewController: UIViewController {
   lazy var collectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.scrollDirection = .vertical
-    layout.minimumLineSpacing = 8
-    layout.minimumInteritemSpacing = 8
+    layout.minimumLineSpacing = 16
+    layout.minimumInteritemSpacing = 16
     var collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
     collection.register(FolderCollectionViewCell.self, forCellWithReuseIdentifier: FolderCollectionViewCell.key)
     collection.register(ImageCollectionViewCell.self, forCellWithReuseIdentifier: ImageCollectionViewCell.key)
     collection.register(HeaderCollectionView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCollectionView.key)
+    collection.backgroundColor = .clear
     collection.showsVerticalScrollIndicator = false
     collection.allowsMultipleSelection = true
     collection.dataSource = self
@@ -97,16 +108,16 @@ class ViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .white
+    view.backgroundColor = .colorBackground
     
     settingsSwipeSegment()
     
     asSelectView()
-     
+    
     addSubview()
     
     settingsNavigationController()
-
+    
     fileManager.fetchDirectoryContent()
     
     updateViewConstraints()
@@ -115,13 +126,14 @@ class ViewController: UIViewController {
   @objc func updateSwipeTable() {
     fileManager.fetchDirectoryContent()
     tableView.reloadData()
+    collectionView.reloadData()
     tableView.refreshControl?.endRefreshing()
   }
   
   @objc func plusFolder() { addFileAlert() }
   
   @objc func selectItem() { viewMode = (viewMode == .select) ? .view : .select }
- 
+  
   @objc func trashItem() {
     fileManager.removeContent(arrayDelURL)
     tableView.reloadData()
@@ -139,7 +151,7 @@ class ViewController: UIViewController {
     default:
       break
     }
-
+    
     isSegment()
   }
   
@@ -154,7 +166,7 @@ class ViewController: UIViewController {
     let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(isSegmentSwipe))
     swipeLeft.direction = .left
     swipeRight.direction = .right
-
+    
     tableView.addGestureRecognizer(swipeLeft)
     collectionView.addGestureRecognizer(swipeRight)
   }
@@ -171,6 +183,52 @@ class ViewController: UIViewController {
     tableView.isHidden = UserDefaults.standard.integer(forKey: "selectedSegmentIndex") != 0
   }
   
+  func securityAlert() {
+    if keychain.get("password") != nil {
+      
+      let alertPassword = UIAlertController(title: "Нет доступа", message: "Введите ваш пароль", preferredStyle: .alert)
+      alertPassword.addTextField()
+      alertPassword.textFields?.first?.placeholder = "Пароль"
+      alertPassword.textFields?.first?.isSecureTextEntry = true
+      let checkPassword = UIAlertAction(title: "Ок", style: .default) { _ in
+        guard let password = alertPassword.textFields?.first?.text else {return}
+        
+        if self.keychain.get("password") != password { self.errorPasswordAlert() }
+        
+      }
+      
+      alertPassword.addAction(checkPassword)
+      present(alertPassword, animated: true)
+      
+    } else {
+      
+      let alertSecurity = UIAlertController(title: "Безопасность", message: "Хотите установить пароль?", preferredStyle: .alert)
+      alertSecurity.addTextField()
+      alertSecurity.textFields?.first?.placeholder = "Пароль"
+      alertSecurity.textFields?.first?.isSecureTextEntry = true
+      
+      let setPassword = UIAlertAction(title: "Установить", style: .default) { _ in
+        guard let password = alertSecurity.textFields?.first?.text, !password.isEmpty else {return}
+        self.keychain.set(password, forKey: "password")
+      }
+      let cancel = UIAlertAction(title: "Отмена", style: .destructive)
+      
+      alertSecurity.addAction(setPassword)
+      alertSecurity.addAction(cancel)
+      
+      present(alertSecurity, animated: true)
+    }
+  }
+  
+  func errorPasswordAlert() {
+    let alertErrorPassword = UIAlertController(title: "Ошибка", message: "Неверный пароль", preferredStyle: .alert)
+    let ok = UIAlertAction(title: "Ок", style: .default) { _ in
+      self.securityAlert()
+    }
+    alertErrorPassword.addAction(ok)
+    present(alertErrorPassword, animated: true)
+  }
+  
   func addFileAlert() {
     let alert = UIAlertController(title: "Выбирите действие", message: nil, preferredStyle: .alert)
     
@@ -185,10 +243,10 @@ class ViewController: UIViewController {
     alert.addAction(createFolder)
     alert.addAction(addImage)
     alert.addAction(cancel)
-
+    
     present(alert, animated: true)
   }
-
+  
   func addCreateFolderAlert() {
     let alertCreateFolder = UIAlertController(title: "Создание нового каталога", message: "Введите имя", preferredStyle: .alert)
     alertCreateFolder.addTextField()
@@ -198,9 +256,9 @@ class ViewController: UIViewController {
       guard let textFields = alertCreateFolder.textFields?.first?.text?.trimmingCharacters(in: .whitespaces), !textFields.isEmpty else {
         self.errorAlert("Заполните поле Имя")
         return}
-
+      
       self.fileManager.createFolder(textFields) ? nil : self.errorAlert("Такая папка существует")
-       
+      
       self.tableView.reloadData()
       self.collectionView.reloadData()
     }
@@ -222,6 +280,7 @@ class ViewController: UIViewController {
   }
   
   func addSubview() {
+    view.addSubview(emptyDirectoryLabel)
     view.addSubview(tableView)
     view.addSubview(segmentControl)
     view.addSubview(collectionView)
@@ -244,43 +303,48 @@ class ViewController: UIViewController {
     case .select:
       navigationItem.rightBarButtonItems = [rightBarButtonTrash, rightBarButtonSelectItem]
     }
-    
-    navigationController?.navigationBar.tintColor = .black
-    
-    navigationController?.navigationBar.scrollEdgeAppearance = UINavigationBarAppearance()
-    navigationController?.navigationBar.scrollEdgeAppearance?.backgroundColor = .green
-   
   }
   
   override func updateViewConstraints() {
     super.updateViewConstraints()
+    emptyDirectoryLabel.snp.makeConstraints { make in
+      make.centerX.equalToSuperview()
+      make.centerY.equalToSuperview()
+    }
+    
     segmentControl.snp.makeConstraints { make in
       make.centerX.equalToSuperview()
-      make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).inset(8)
+      make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).inset(16)
     }
     
     tableView.snp.makeConstraints { make in
-      make.top.equalTo(self.segmentControl.snp.bottom).inset(-8)
+      make.top.equalTo(self.segmentControl.snp.bottom).inset(-16)
       make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
       make.leading.equalToSuperview().inset(16)
       make.trailing.equalToSuperview().inset(16)
     }
     
     collectionView.snp.makeConstraints { make in
-      make.top.equalTo(self.segmentControl.snp.bottom).inset(-8)
+      make.top.equalTo(self.segmentControl.snp.bottom).inset(-16)
       make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
       make.leading.equalToSuperview().inset(16)
       make.trailing.equalToSuperview().inset(16)
     }
     
   }
-
+  
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
   
   func numberOfSections(in tableView: UITableView) -> Int {
-    fileManager.content.count
+    emptyDirectoryLabel.isHidden = !(fileManager.filterContent(.folder).isEmpty && fileManager.filterContent(.image).isEmpty)
+    return fileManager.content.count
+  }
+  
+  func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    guard let header = view as? UITableViewHeaderFooterView else { return }
+    header.textLabel?.font = header.textLabel?.font.withSize(16)
   }
   
   func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -328,11 +392,11 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
       
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
-      arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
- 
+        arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
+        
       case .image:
-      arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
-
+        arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
+        
       default:
         break
       }
@@ -346,8 +410,18 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         viewFolder.fileManager.currentCatalog = folder
         navigationController?.pushViewController(viewFolder, animated: true)
       case .image:
-        let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-        fullImageView.imageView.image = image
+        guard let firstImage = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path()) else {return}
+        let fullImageView = FullImageViewController()
+        
+        fileManager.filterContent(.image).forEach({
+          guard let image = UIImage(contentsOfFile: $0.path()) else {return}
+          if $0 != fileManager.filterContent(.image)[indexPath.row] {
+            fullImageView.arrayImage.append(image)
+          }
+        })
+        
+        fullImageView.arrayImage.insert(firstImage, at: 0)
+        
         fullImageView.modalPresentationStyle = .formSheet
         present(fullImageView, animated: true)
       default:
@@ -361,11 +435,11 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     switch viewMode {
     case .select:
       collectionView.deselectItem(at: indexPath, animated: true)
-    
+      
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
         arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.folder)[indexPath.row]})
-
+        
       case .image:
         arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.image)[indexPath.row]})
         
@@ -384,15 +458,19 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
     fileManager.content.count
   }
   
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+    return UIEdgeInsets(top: 3.0, left: 0.0, bottom: 25, right: 0.0)
+  }
+  
   func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
     guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderCollectionView.key, for: indexPath) as? HeaderCollectionView else {return UICollectionReusableView()}
     if kind == UICollectionView.elementKindSectionHeader {
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
-        header.nameHeaderLabel.text = !fileManager.filterContent(.folder).isEmpty ? "Folder" : ""
+        header.nameHeaderLabel.text = !fileManager.filterContent(.folder).isEmpty ? "FOLDER" : ""
         return header
       case .image:
-        header.nameHeaderLabel.text = !fileManager.filterContent(.image).isEmpty ? "Image" : ""
+        header.nameHeaderLabel.text = !fileManager.filterContent(.image).isEmpty ? "IMAGE" : ""
         return header
       default:
         return UICollectionReusableView()
@@ -435,9 +513,9 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
     switch TypeDirectory(rawValue: indexPath.section) {
     case .folder:
-      return CGSize(width: 70, height: 70)
+      return CGSize(width: ((collectionView.frame.width-48)/4), height: ((collectionView.frame.width-48)/4))
     case .image:
-      return CGSize(width: 100, height: 100)
+      return CGSize(width: ((collectionView.frame.width-32)/3), height: ((collectionView.frame.width-32)/3))
     default:
       return CGSize()
     }
@@ -449,14 +527,14 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
       tableView.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
       
       switch TypeDirectory(rawValue: indexPath.section) {
-        case .folder:
-          arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
-    
-        case .image:
-          arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
-    
-        default:
-            break
+      case .folder:
+        arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
+        
+      case .image:
+        arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
+        
+      default:
+        break
       }
     case .view:
       collectionView.deselectItem(at: indexPath, animated: false)
@@ -467,8 +545,18 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
         viewFolder.fileManager.currentCatalog = folder
         navigationController?.pushViewController(viewFolder, animated: true)
       case .image:
-        let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-        fullImageView.imageView.image = image
+        guard let firstImage = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path()) else {return}
+        let fullImageView = FullImageViewController()
+        
+        fileManager.filterContent(.image).forEach({
+          guard let image = UIImage(contentsOfFile: $0.path()) else {return}
+          if $0 != fileManager.filterContent(.image)[indexPath.row] {
+            fullImageView.arrayImage.append(image)
+          }
+        })
+        
+        fullImageView.arrayImage.insert(firstImage, at: 0)
+        
         fullImageView.modalPresentationStyle = .formSheet
         present(fullImageView, animated: true)
       default:
@@ -481,7 +569,7 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
     switch viewMode {
     case .select:
       tableView.deselectRow(at: indexPath, animated: true)
-
+      
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
         arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.folder)[indexPath.row]})
@@ -496,7 +584,7 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
       collectionView.deselectItem(at: indexPath, animated: false)
     }
   }
-
+  
 }
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -504,16 +592,16 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     guard let imageURL = info[.imageURL] as? URL,
           let originalImage = info[.originalImage] as? UIImage
-      else {return}
+    else {return}
     
     let data = originalImage.jpegData(compressionQuality: 1)
-      
+    
     fileManager.addImage(URL: imageURL.lastPathComponent, data: data)
     
     tableView.reloadData()
     collectionView.reloadData()
     dismiss(animated: true)
   }
-
+  
 }
 
