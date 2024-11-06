@@ -14,6 +14,7 @@
 		D069F70F2CCF8B3D00341643 /* FullImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */; };
 		D097213D2CCA8CDB00E9050B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D097213C2CCA8CDB00E9050B /* SnapKit */; };
 		D0C11A772CD0F0D4004D54C5 /* Directory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C11A762CD0F0D4004D54C5 /* Directory.swift */; };
+		D0DCF2B02CDBB63C0092EF8E /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D0DCF2AF2CDBB63C0092EF8E /* KeychainSwift */; };
 		D0FD00152CCB963F000C2F63 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD000C2CCB963F000C2F63 /* AppDelegate.swift */; };
 		D0FD00172CCB963F000C2F63 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD00122CCB963F000C2F63 /* SceneDelegate.swift */; };
 		D0FD00182CCB963F000C2F63 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD00132CCB963F000C2F63 /* ViewController.swift */; };
@@ -46,6 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0DCF2B02CDBB63C0092EF8E /* KeychainSwift in Frameworks */,
 				D097213D2CCA8CDB00E9050B /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -156,6 +158,7 @@
 			name = FileManager;
 			packageProductDependencies = (
 				D097213C2CCA8CDB00E9050B /* SnapKit */,
+				D0DCF2AF2CDBB63C0092EF8E /* KeychainSwift */,
 			);
 			productName = FileManager;
 			productReference = D09721052CCA869800E9050B /* FileManager.app */;
@@ -187,6 +190,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D097213B2CCA8CDB00E9050B /* XCRemoteSwiftPackageReference "SnapKit" */,
+				D0DCF2AE2CDBB63C0092EF8E /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D09721062CCA869800E9050B /* Products */;
@@ -448,6 +452,14 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		D0DCF2AE2CDBB63C0092EF8E /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -455,6 +467,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D097213B2CCA8CDB00E9050B /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		D0DCF2AF2CDBB63C0092EF8E /* KeychainSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D0DCF2AE2CDBB63C0092EF8E /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			productName = KeychainSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

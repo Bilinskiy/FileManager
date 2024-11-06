@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import KeychainSwift
 
 enum ViewMode {
   case select
@@ -31,6 +32,7 @@ class ViewController: UIViewController {
     }
   }
   
+  private let keychain = KeychainSwift()
   private var fileManager: ManagerFileProtocol = ManagerFile()
   private var arrayDelURL: [URL] = [] {
     didSet {
@@ -179,6 +181,52 @@ class ViewController: UIViewController {
     
     collectionView.isHidden = UserDefaults.standard.integer(forKey: "selectedSegmentIndex") == 0
     tableView.isHidden = UserDefaults.standard.integer(forKey: "selectedSegmentIndex") != 0
+  }
+  
+  func securityAlert() {
+    if keychain.get("password") != nil {
+      
+      let alertPassword = UIAlertController(title: "Нет доступа", message: "Введите ваш пароль", preferredStyle: .alert)
+      alertPassword.addTextField()
+      alertPassword.textFields?.first?.placeholder = "Пароль"
+      alertPassword.textFields?.first?.isSecureTextEntry = true
+      let checkPassword = UIAlertAction(title: "Ок", style: .default) { _ in
+        guard let password = alertPassword.textFields?.first?.text else {return}
+        
+        if self.keychain.get("password") != password { self.errorPasswordAlert() }
+
+      }
+      
+      alertPassword.addAction(checkPassword)
+      present(alertPassword, animated: true)
+      
+    } else {
+      
+      let alertSecurity = UIAlertController(title: "Безопасность", message: "Хотите установить пароль?", preferredStyle: .alert)
+      alertSecurity.addTextField()
+      alertSecurity.textFields?.first?.placeholder = "Пароль"
+      alertSecurity.textFields?.first?.isSecureTextEntry = true
+      
+      let setPassword = UIAlertAction(title: "Установить", style: .default) { _ in
+        guard let password = alertSecurity.textFields?.first?.text, !password.isEmpty else {return}
+        self.keychain.set(password, forKey: "password")
+      }
+      let cancel = UIAlertAction(title: "Отмена", style: .destructive)
+      
+      alertSecurity.addAction(setPassword)
+      alertSecurity.addAction(cancel)
+      
+      present(alertSecurity, animated: true)
+    }
+  }
+  
+  func errorPasswordAlert() {
+    let alertErrorPassword = UIAlertController(title: "Ошибка", message: "Неверный пароль", preferredStyle: .alert)
+    let ok = UIAlertAction(title: "Ок", style: .default) { _ in
+      self.securityAlert()
+    }
+    alertErrorPassword.addAction(ok)
+    present(alertErrorPassword, animated: true)
   }
   
   func addFileAlert() {
