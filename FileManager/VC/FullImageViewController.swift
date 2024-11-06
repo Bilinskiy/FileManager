@@ -20,7 +20,7 @@ class FullImageViewController: UIViewController {
   
     override func viewDidLoad() {
         super.viewDidLoad()
-      view.backgroundColor = .white
+      view.backgroundColor = .colorBackground
       
       view.addSubview(imageView)
 

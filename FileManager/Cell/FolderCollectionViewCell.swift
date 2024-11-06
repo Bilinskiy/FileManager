@@ -15,16 +15,16 @@ class FolderCollectionViewCell: UICollectionViewCell {
   lazy var imageFolder: UIImageView = {
     var image =  UIImageView(image: UIImage(systemName: "folder"))
     image.contentMode = .scaleAspectFit
-    image.tintColor = .black
+    image.tintColor = .colorNavBar
     return image
   }()
   
   lazy var nameFolderLabel: UILabel = {
     var label = UILabel()
-    label.textColor = .black
-    label.font = UIFont.systemFont(ofSize: 10, weight: .semibold)
+    label.textColor = .colorLabel
+    label.font = label.font.withSize(16)
     label.textAlignment = .center
-  
+    label.numberOfLines = 2
     return label
   }()
   
@@ -37,7 +37,7 @@ class FolderCollectionViewCell: UICollectionViewCell {
   override init(frame: CGRect) {
     super.init(frame: frame)
     contentView.backgroundColor = .bgColorFolderCollection
-    contentView.layer.cornerRadius = 35
+    contentView.layer.cornerRadius = 15
     contentView.addSubview(imageFolder)
     contentView.addSubview(nameFolderLabel)
     
@@ -56,12 +56,12 @@ class FolderCollectionViewCell: UICollectionViewCell {
       make.width.equalTo(25)
       make.height.equalTo(25)
       make.centerX.equalToSuperview()
-      make.centerY.equalToSuperview().offset(-8)
+      make.centerY.equalToSuperview().offset(-16)
     }
     
     nameFolderLabel.snp.makeConstraints { make in
       make.centerX.equalToSuperview()
-      make.top.equalTo(self.imageFolder.snp.bottom)
+      make.top.equalTo(self.imageFolder.snp.bottom).offset(8)
       make.leading.equalToSuperview().inset(2)
       make.trailing.equalToSuperview().inset(2)
 

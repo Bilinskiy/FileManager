@@ -14,7 +14,7 @@ enum ViewMode {
 }
 
 class ViewController: UIViewController {
-
+  
   private var viewMode: ViewMode = .view {
     didSet {
       switch viewMode {
@@ -38,6 +38,15 @@ class ViewController: UIViewController {
       rightBarButtonTrash.isEnabled = !arrayDelURL.isEmpty
     }
   }
+
+  lazy var emptyDirectoryLabel: UILabel = {
+    var label = UILabel()
+    label.font = label.font.withSize(25)
+    label.textColor = .colorBlackNav
+    label.text = "КАТАЛОГ ПУСТОЙ"
+    label.layer.opacity = 0.4
+    return label
+  }()
   
   lazy var segmentControl: UISegmentedControl = {
     var segment = UISegmentedControl()
@@ -66,12 +75,13 @@ class ViewController: UIViewController {
   lazy var collectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.scrollDirection = .vertical
-    layout.minimumLineSpacing = 8
-    layout.minimumInteritemSpacing = 8
+    layout.minimumLineSpacing = 16
+    layout.minimumInteritemSpacing = 16
     var collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
     collection.register(FolderCollectionViewCell.self, forCellWithReuseIdentifier: FolderCollectionViewCell.key)
     collection.register(ImageCollectionViewCell.self, forCellWithReuseIdentifier: ImageCollectionViewCell.key)
     collection.register(HeaderCollectionView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCollectionView.key)
+    collection.backgroundColor = .clear
     collection.showsVerticalScrollIndicator = false
     collection.allowsMultipleSelection = true
     collection.dataSource = self
@@ -97,7 +107,7 @@ class ViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .white
+    view.backgroundColor = .colorBackground
     
     settingsSwipeSegment()
     
@@ -115,6 +125,7 @@ class ViewController: UIViewController {
   @objc func updateSwipeTable() {
     fileManager.fetchDirectoryContent()
     tableView.reloadData()
+    collectionView.reloadData()
     tableView.refreshControl?.endRefreshing()
   }
   
@@ -222,6 +233,7 @@ class ViewController: UIViewController {
   }
   
   func addSubview() {
+    view.addSubview(emptyDirectoryLabel)
     view.addSubview(tableView)
     view.addSubview(segmentControl)
     view.addSubview(collectionView)
@@ -237,37 +249,36 @@ class ViewController: UIViewController {
   
   func settingsNavigationController() {
     navigationItem.title = fileManager.currentCatalog.lastPathComponent
-    
+
     switch viewMode {
     case .view:
       navigationItem.rightBarButtonItems = [rightBarButtonPlusFolder, rightBarButtonSelectItem]
     case .select:
       navigationItem.rightBarButtonItems = [rightBarButtonTrash, rightBarButtonSelectItem]
     }
-    
-    navigationController?.navigationBar.tintColor = .black
-    
-    navigationController?.navigationBar.scrollEdgeAppearance = UINavigationBarAppearance()
-    navigationController?.navigationBar.scrollEdgeAppearance?.backgroundColor = .green
-   
   }
   
   override func updateViewConstraints() {
     super.updateViewConstraints()
+    emptyDirectoryLabel.snp.makeConstraints { make in
+      make.centerX.equalToSuperview()
+      make.centerY.equalToSuperview()
+    }
+    
     segmentControl.snp.makeConstraints { make in
       make.centerX.equalToSuperview()
-      make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).inset(8)
+      make.top.equalTo(self.view.safeAreaLayoutGuide.snp.top).inset(16)
     }
     
     tableView.snp.makeConstraints { make in
-      make.top.equalTo(self.segmentControl.snp.bottom).inset(-8)
+      make.top.equalTo(self.segmentControl.snp.bottom).inset(-16)
       make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
       make.leading.equalToSuperview().inset(16)
       make.trailing.equalToSuperview().inset(16)
     }
     
     collectionView.snp.makeConstraints { make in
-      make.top.equalTo(self.segmentControl.snp.bottom).inset(-8)
+      make.top.equalTo(self.segmentControl.snp.bottom).inset(-16)
       make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
       make.leading.equalToSuperview().inset(16)
       make.trailing.equalToSuperview().inset(16)
@@ -280,7 +291,13 @@ class ViewController: UIViewController {
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
   
   func numberOfSections(in tableView: UITableView) -> Int {
-    fileManager.content.count
+    emptyDirectoryLabel.isHidden = !(fileManager.filterContent(.folder).isEmpty && fileManager.filterContent(.image).isEmpty)
+    return fileManager.content.count
+  }
+  
+  func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+    guard let header = view as? UITableViewHeaderFooterView else { return }
+    header.textLabel?.font = header.textLabel?.font.withSize(16)
   }
   
   func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -384,15 +401,19 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
     fileManager.content.count
   }
   
+  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+    return UIEdgeInsets(top: 3.0, left: 0.0, bottom: 25, right: 0.0)
+  }
+  
   func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
     guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderCollectionView.key, for: indexPath) as? HeaderCollectionView else {return UICollectionReusableView()}
     if kind == UICollectionView.elementKindSectionHeader {
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
-        header.nameHeaderLabel.text = !fileManager.filterContent(.folder).isEmpty ? "Folder" : ""
+        header.nameHeaderLabel.text = !fileManager.filterContent(.folder).isEmpty ? "FOLDER" : ""
         return header
       case .image:
-        header.nameHeaderLabel.text = !fileManager.filterContent(.image).isEmpty ? "Image" : ""
+        header.nameHeaderLabel.text = !fileManager.filterContent(.image).isEmpty ? "IMAGE" : ""
         return header
       default:
         return UICollectionReusableView()
@@ -435,9 +456,9 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
     switch TypeDirectory(rawValue: indexPath.section) {
     case .folder:
-      return CGSize(width: 70, height: 70)
+      return CGSize(width: ((collectionView.frame.width-48)/4), height: ((collectionView.frame.width-48)/4))
     case .image:
-      return CGSize(width: 100, height: 100)
+      return CGSize(width: ((collectionView.frame.width-32)/3), height: ((collectionView.frame.width-32)/3))
     default:
       return CGSize()
     }

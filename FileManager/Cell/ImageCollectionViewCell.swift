@@ -16,7 +16,7 @@ class ImageCollectionViewCell: UICollectionViewCell {
     var image = UIImageView()
     image.contentMode = .scaleAspectFill
     image.layer.masksToBounds = true
-    image.layer.cornerRadius = 50
+    image.layer.cornerRadius = 15
     return image
   }()
   
@@ -31,9 +31,6 @@ class ImageCollectionViewCell: UICollectionViewCell {
   
   override init(frame: CGRect) {
     super .init(frame: frame)
-    
-    contentView.backgroundColor = .black
-    contentView.layer.cornerRadius = 50
     contentView.addSubview(image)
     
     updateConstraints()

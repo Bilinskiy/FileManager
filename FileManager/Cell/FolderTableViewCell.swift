@@ -14,13 +14,13 @@ class FolderTableViewCell: UITableViewCell {
   lazy var imageFolder: UIImageView = {
     var image =  UIImageView(image: UIImage(systemName: "folder"))
     image.contentMode = .scaleAspectFit
-    image.tintColor = .black
+    image.tintColor = .colorNavBar
     return image
   }()
   
   lazy var nameFolderLabel: UILabel = {
     var label = UILabel()
-    label.textColor = .black
+    label.textColor = .colorLabel
     return label
   }()
   
@@ -32,7 +32,7 @@ class FolderTableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
       
-      contentView.backgroundColor = selected ?  .red : .clear
+      contentView.backgroundColor = selected ?  .red : .bgColorFolderCollection
       
       contentView.addSubview(imageFolder)
       contentView.addSubview(nameFolderLabel)

@@ -14,7 +14,8 @@ class HeaderCollectionView: UICollectionReusableView {
   
   lazy var nameHeaderLabel: UILabel = {
     var label = UILabel()
-    label.textColor = .black
+    label.font = label.font.withSize(16)
+    label.textColor = .colorHeaderCollection
     return label
   }()
   
@@ -34,7 +35,7 @@ class HeaderCollectionView: UICollectionReusableView {
     
     nameHeaderLabel.snp.makeConstraints { make in
       make.centerY.equalToSuperview()
-      make.leading.equalToSuperview().offset(8)
+      make.leading.equalToSuperview().offset(16)
     }
   }
   

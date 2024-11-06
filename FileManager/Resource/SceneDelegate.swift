@@ -19,7 +19,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let scene = (scene as? UIWindowScene) else { return }
           
     let navBar = UINavigationController(rootViewController: ViewController())
-
+    
+    let appearance = UINavigationBarAppearance()
+    appearance.backgroundColor = .colorNavBar
+    appearance.titleTextAttributes = [.foregroundColor: UIColor.colorBlackNav]
+    
+    navBar.navigationBar.standardAppearance = appearance
+    navBar.navigationBar.scrollEdgeAppearance = appearance
+    
+    navBar.navigationBar.tintColor = .black
+    
             window = UIWindow(windowScene: scene)
             window?.windowScene = scene
             window?.makeKeyAndVisible()
