@@ -28,10 +28,15 @@ class FolderCollectionViewCell: UICollectionViewCell {
     return label
   }()
   
+  override var isSelected: Bool {
+    didSet {
+      contentView.backgroundColor = isSelected ? .red : .bgColorFolderCollection
+    }
+  }
   
   override init(frame: CGRect) {
     super.init(frame: frame)
-    contentView.backgroundColor = .lightGray
+    contentView.backgroundColor = .bgColorFolderCollection
     contentView.layer.cornerRadius = 35
     contentView.addSubview(imageFolder)
     contentView.addSubview(nameFolderLabel)

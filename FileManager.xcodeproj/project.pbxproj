@@ -85,8 +85,8 @@
 			children = (
 				D0FD001E2CCBC802000C2F63 /* FolderTableViewCell.swift */,
 				D069F7092CCE3F5500341643 /* ImageTableViewCell.swift */,
-				D0094ACA2CD22AE000A72D28 /* FolderCollectionViewCell.swift */,
 				D0094ACC2CD2329700A72D28 /* ImageCollectionViewCell.swift */,
+				D0094ACA2CD22AE000A72D28 /* FolderCollectionViewCell.swift */,
 			);
 			path = Cell;
 			sourceTree = "<group>";

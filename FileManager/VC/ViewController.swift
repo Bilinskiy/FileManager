@@ -8,10 +8,36 @@
 import UIKit
 import SnapKit
 
+enum ViewMode {
+  case select
+  case view
+}
+
 class ViewController: UIViewController {
+
+  private var viewMode: ViewMode = .view {
+    didSet {
+      switch viewMode {
+      case .select:
+        rightBarButtonSelectItem.image = UIImage(systemName: "checkmark.circle.fill")
+        settingsNavigationController()
+      case .view:
+        rightBarButtonSelectItem.image = UIImage(systemName: "checkmark.circle")
+        settingsNavigationController()
+        tableView.indexPathsForSelectedRows?.forEach({tableView.deselectRow(at: $0, animated: true)})
+        collectionView.indexPathsForVisibleItems.forEach({collectionView.deselectItem(at: $0, animated: true)})
+        arrayDelURL.removeAll()
+      }
+    }
+  }
   
   private var fileManager: ManagerFileProtocol = ManagerFile()
   private let fullImageView = FullImageViewController()
+  private var arrayDelURL: [URL] = [] {
+    didSet {
+      rightBarButtonTrash.isEnabled = !arrayDelURL.isEmpty
+    }
+  }
   
   lazy var segmentControl: UISegmentedControl = {
     var segment = UISegmentedControl()
@@ -31,6 +57,7 @@ class ViewController: UIViewController {
     refresh.addTarget(self, action: #selector(updateSwipeTable), for: .valueChanged)
     table.register(FolderTableViewCell.self, forCellReuseIdentifier: FolderTableViewCell.key)
     table.register(ImageTableViewCell.self, forCellReuseIdentifier: ImageTableViewCell.key)
+    table.allowsMultipleSelection = true
     table.dataSource = self
     table.delegate = self
     return table
@@ -46,6 +73,7 @@ class ViewController: UIViewController {
     collection.register(ImageCollectionViewCell.self, forCellWithReuseIdentifier: ImageCollectionViewCell.key)
     collection.register(HeaderCollectionView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderCollectionView.key)
     collection.showsVerticalScrollIndicator = false
+    collection.allowsMultipleSelection = true
     collection.dataSource = self
     collection.delegate = self
     return collection
@@ -56,12 +84,25 @@ class ViewController: UIViewController {
     return button
   }()
   
+  lazy var rightBarButtonSelectItem: UIBarButtonItem = {
+    var button = UIBarButtonItem(image: UIImage(systemName: "checkmark.circle"), style: .plain, target: self, action: #selector(selectItem))
+    return button
+  }()
+  
+  lazy var rightBarButtonTrash: UIBarButtonItem = {
+    var button = UIBarButtonItem(image: UIImage(systemName: "trash.circle"), style: .plain, target: self, action: #selector(trashItem))
+    button.isEnabled = false
+    return button
+  }()
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
     
-    asSelectView()
+    settingsSwipeSegment()
     
+    asSelectView()
+     
     addSubview()
     
     settingsNavigationController()
@@ -79,10 +120,43 @@ class ViewController: UIViewController {
   
   @objc func plusFolder() { addFileAlert() }
   
+  @objc func selectItem() { viewMode = (viewMode == .select) ? .view : .select }
+ 
+  @objc func trashItem() {
+    fileManager.removeContent(arrayDelURL)
+    tableView.reloadData()
+    collectionView.reloadData()
+    arrayDelURL.removeAll()
+    viewMode = .view
+  }
+  
+  @objc func isSegmentSwipe(_ gesture: UISwipeGestureRecognizer) {
+    switch gesture.direction {
+    case .left:
+      segmentControl.selectedSegmentIndex = 1
+    case .right:
+      segmentControl.selectedSegmentIndex = 0
+    default:
+      break
+    }
+
+    isSegment()
+  }
+  
   @objc func isSegment() {
     UserDefaults.standard.set(segmentControl.selectedSegmentIndex, forKey: "selectedSegmentIndex")
     collectionView.isHidden.toggle()
     tableView.isHidden.toggle()
+  }
+  
+  func settingsSwipeSegment() {
+    let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(isSegmentSwipe))
+    let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(isSegmentSwipe))
+    swipeLeft.direction = .left
+    swipeRight.direction = .right
+
+    tableView.addGestureRecognizer(swipeLeft)
+    collectionView.addGestureRecognizer(swipeRight)
   }
   
   func asSelectView() {
@@ -93,14 +167,8 @@ class ViewController: UIViewController {
       segmentControl.selectedSegmentIndex = UserDefaults.standard.integer(forKey: "selectedSegmentIndex")
     }
     
-    if UserDefaults.standard.integer(forKey: "selectedSegmentIndex") == 0 {
-      collectionView.isHidden = true
-      tableView.isHidden = false
-    } else {
-      tableView.isHidden = true
-      collectionView.isHidden = false
-    }
-  
+    collectionView.isHidden = UserDefaults.standard.integer(forKey: "selectedSegmentIndex") == 0
+    tableView.isHidden = UserDefaults.standard.integer(forKey: "selectedSegmentIndex") != 0
   }
   
   func addFileAlert() {
@@ -131,18 +199,8 @@ class ViewController: UIViewController {
         self.errorAlert("Заполните поле Имя")
         return}
 
-     if let folderURL = self.fileManager.createFolder(textFields) {
+      self.fileManager.createFolder(textFields) ? nil : self.errorAlert("Такая папка существует")
        
-       for i in 0..<self.fileManager.content.count {
-         if self.fileManager.content[i].type == .folder {
-           self.fileManager.content[i].appendNewFile(folderURL)
-         }
-       }
-       
-     } else {
-       self.errorAlert("Такая папка существует")
-     }
-      
       self.tableView.reloadData()
       self.collectionView.reloadData()
     }
@@ -179,7 +237,14 @@ class ViewController: UIViewController {
   
   func settingsNavigationController() {
     navigationItem.title = fileManager.currentCatalog.lastPathComponent
-    navigationItem.rightBarButtonItems = [rightBarButtonPlusFolder]
+    
+    switch viewMode {
+    case .view:
+      navigationItem.rightBarButtonItems = [rightBarButtonPlusFolder, rightBarButtonSelectItem]
+    case .select:
+      navigationItem.rightBarButtonItems = [rightBarButtonTrash, rightBarButtonSelectItem]
+    }
+    
     navigationController?.navigationBar.tintColor = .black
     
     navigationController?.navigationBar.scrollEdgeAppearance = UINavigationBarAppearance()
@@ -257,22 +322,60 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    switch TypeDirectory(rawValue: indexPath.section) {
-    case .folder:
-      let folder = fileManager.filterContent(.folder)[indexPath.row]
-      let viewFolder = ViewController()
-      viewFolder.fileManager.currentCatalog = folder
-      navigationController?.pushViewController(viewFolder, animated: true)
-    case .image:
-      let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-      fullImageView.imageView.image = image
-      fullImageView.modalPresentationStyle = .formSheet
-      present(fullImageView, animated: true)
-    default:
-      break
+    switch viewMode {
+    case .select:
+      collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .bottom)
+      
+      switch TypeDirectory(rawValue: indexPath.section) {
+      case .folder:
+      arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
+ 
+      case .image:
+      arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
+
+      default:
+        break
+      }
+      
+    case .view:
+      tableView.deselectRow(at: indexPath, animated: true)
+      switch TypeDirectory(rawValue: indexPath.section) {
+      case .folder:
+        let folder = fileManager.filterContent(.folder)[indexPath.row]
+        let viewFolder = ViewController()
+        viewFolder.fileManager.currentCatalog = folder
+        navigationController?.pushViewController(viewFolder, animated: true)
+      case .image:
+        let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
+        fullImageView.imageView.image = image
+        fullImageView.modalPresentationStyle = .formSheet
+        present(fullImageView, animated: true)
+      default:
+        break
+      }
     }
+    
   }
   
+  func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    switch viewMode {
+    case .select:
+      collectionView.deselectItem(at: indexPath, animated: true)
+    
+      switch TypeDirectory(rawValue: indexPath.section) {
+      case .folder:
+        arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.folder)[indexPath.row]})
+
+      case .image:
+        arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.image)[indexPath.row]})
+        
+      default:
+        break
+      }
+    case .view:
+      tableView.deselectRow(at: indexPath, animated: true)
+    }
+  }
 }
 
 extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -341,22 +444,59 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
   }
   
   func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    switch TypeDirectory(rawValue: indexPath.section) {
-    case .folder:
-      let folder = fileManager.filterContent(.folder)[indexPath.row]
-      let viewFolder = ViewController()
-      viewFolder.fileManager.currentCatalog = folder
-      navigationController?.pushViewController(viewFolder, animated: true)
-    case .image:
-      let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-      fullImageView.imageView.image = image
-      fullImageView.modalPresentationStyle = .formSheet
-      present(fullImageView, animated: true)
-    default:
-      break
+    switch viewMode {
+    case .select:
+      tableView.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
+      
+      switch TypeDirectory(rawValue: indexPath.section) {
+        case .folder:
+          arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
+    
+        case .image:
+          arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
+    
+        default:
+            break
+      }
+    case .view:
+      collectionView.deselectItem(at: indexPath, animated: false)
+      switch TypeDirectory(rawValue: indexPath.section) {
+      case .folder:
+        let folder = fileManager.filterContent(.folder)[indexPath.row]
+        let viewFolder = ViewController()
+        viewFolder.fileManager.currentCatalog = folder
+        navigationController?.pushViewController(viewFolder, animated: true)
+      case .image:
+        let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
+        fullImageView.imageView.image = image
+        fullImageView.modalPresentationStyle = .formSheet
+        present(fullImageView, animated: true)
+      default:
+        break
+      }
     }
   }
   
+  func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+    switch viewMode {
+    case .select:
+      tableView.deselectRow(at: indexPath, animated: true)
+
+      switch TypeDirectory(rawValue: indexPath.section) {
+      case .folder:
+        arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.folder)[indexPath.row]})
+        
+      case .image:
+        arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.image)[indexPath.row]})
+        
+      default:
+        break
+      }
+    case .view:
+      collectionView.deselectItem(at: indexPath, animated: false)
+    }
+  }
+
 }
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -369,12 +509,6 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     let data = originalImage.jpegData(compressionQuality: 1)
       
     fileManager.addImage(URL: imageURL.lastPathComponent, data: data)
-    
-    for i in 0..<self.fileManager.content.count {
-      if self.fileManager.content[i].type == .image {
-        self.fileManager.content[i].appendNewFile(imageURL)
-      }
-    }
     
     tableView.reloadData()
     collectionView.reloadData()

@@ -20,6 +20,15 @@ class ImageCollectionViewCell: UICollectionViewCell {
     return image
   }()
   
+  override var isSelected: Bool {
+    didSet {
+  
+      image.layer.borderColor = isSelected ? UIColor.red.cgColor : UIColor.clear.cgColor
+      image.layer.borderWidth = isSelected ? 4 : 0
+      
+    }
+  }
+  
   override init(frame: CGRect) {
     super .init(frame: frame)
     

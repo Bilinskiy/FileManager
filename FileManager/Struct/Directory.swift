@@ -21,6 +21,10 @@ struct Directory {
     arrayURL.append(URL)
   }
   
+  mutating func removeFile(_ URL: URL) {
+    arrayURL = arrayURL.filter({$0 != URL})
+  }
+  
 }
 
 
