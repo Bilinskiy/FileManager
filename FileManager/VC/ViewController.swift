@@ -32,7 +32,6 @@ class ViewController: UIViewController {
   }
   
   private var fileManager: ManagerFileProtocol = ManagerFile()
-  private let fullImageView = FullImageViewController()
   private var arrayDelURL: [URL] = [] {
     didSet {
       rightBarButtonTrash.isEnabled = !arrayDelURL.isEmpty
@@ -363,8 +362,18 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         viewFolder.fileManager.currentCatalog = folder
         navigationController?.pushViewController(viewFolder, animated: true)
       case .image:
-        let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-        fullImageView.imageView.image = image
+        let fullImageView = FullImageViewController()
+        guard let firstImage = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path()) else {return}
+       
+        for url in fileManager.filterContent(.image) {
+          guard let image = UIImage(contentsOfFile: url.path()) else {return}
+          if url != fileManager.filterContent(.image)[indexPath.row] {
+            fullImageView.arrayImage.append(image)
+          }
+        }
+        
+       fullImageView.arrayImage.insert(firstImage, at: 0)
+
         fullImageView.modalPresentationStyle = .formSheet
         present(fullImageView, animated: true)
       default:
@@ -488,8 +497,18 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
         viewFolder.fileManager.currentCatalog = folder
         navigationController?.pushViewController(viewFolder, animated: true)
       case .image:
-        let image = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path())
-        fullImageView.imageView.image = image
+        let fullImageView = FullImageViewController()
+        guard let firstImage = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path()) else {return}
+       
+        for url in fileManager.filterContent(.image) {
+          guard let image = UIImage(contentsOfFile: url.path()) else {return}
+          if url != fileManager.filterContent(.image)[indexPath.row] {
+            fullImageView.arrayImage.append(image)
+          }
+        }
+        
+       fullImageView.arrayImage.insert(firstImage, at: 0)
+
         fullImageView.modalPresentationStyle = .formSheet
         present(fullImageView, animated: true)
       default:
