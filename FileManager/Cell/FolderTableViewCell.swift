@@ -31,8 +31,8 @@ class FolderTableViewCell: UITableViewCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-    
+      
+      contentView.backgroundColor = selected ?  .red : .clear
       
       contentView.addSubview(imageFolder)
       contentView.addSubview(nameFolderLabel)

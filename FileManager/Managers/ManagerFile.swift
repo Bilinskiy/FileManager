@@ -11,10 +11,11 @@ protocol ManagerFileProtocol {
   var content: [Directory] {get set}
   var fileManager: FileManager {get}
   var currentCatalog: URL {get set}
-  func createFolder(_ nameFolder: String) -> URL?
+  func createFolder(_ nameFolder: String) -> Bool
   func fetchDirectoryContent()
   func addImage(URL: String, data: Data?)
   func filterContent(_ type: TypeDirectory) -> [URL]
+  func removeContent(_ URL: [URL])
 }
 
 class ManagerFile: ManagerFileProtocol {
@@ -24,19 +25,43 @@ class ManagerFile: ManagerFileProtocol {
   var currentCatalog = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
   func filterContent(_ type: TypeDirectory) -> [URL]  {
-    return content.filter({$0.type == type})[0].arrayURL
+     content.filter({$0.type == type})[0].arrayURL
+  }
+  
+  func removeContent(_ URL: [URL]) {
+    
+    for i in 0..<content.count {
+      if content[i].type == .folder {
+        URL.forEach({content[i].removeFile($0)})
+      } else if content[i].type == .image {
+        URL.forEach({content[i].removeFile($0)})
+      }
+    }
+    
+    URL.forEach({
+      do {
+        try fileManager.removeItem(at: $0)
+      } catch {
+        fatalError()
+      }
+    })
+    
   }
 
-  func createFolder(_ nameFolder: String) -> URL? {
+  func createFolder(_ nameFolder: String) -> Bool {
     let newFolder = currentCatalog.appending(path: nameFolder)
     
     do {
       try fileManager.createDirectory(at: newFolder, withIntermediateDirectories: false)
+      
+      for i in 0..<content.count {
+        if content[i].type == .folder { content[i].appendNewFile(newFolder) }
+      }
+      
     } catch {
-      return nil
+      return false
     }
-    
-    return newFolder
+    return true
   }
 
   func fetchDirectoryContent() {
@@ -56,6 +81,11 @@ class ManagerFile: ManagerFileProtocol {
 
     do {
       try data?.write(to: newImageURL)
+      
+      for i in 0..<content.count {
+        if content[i].type == .image { content[i].appendNewFile(newImageURL) }
+      }
+      
     } catch {
       fatalError()
     }

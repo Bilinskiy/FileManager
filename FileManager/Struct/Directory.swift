@@ -7,9 +7,9 @@
 
 import Foundation
 
-enum TypeDirectory {
-  case image
-  case folder
+enum TypeDirectory: Int {
+  case folder = 0
+  case image = 1
 }
 
 struct Directory {
@@ -19,6 +19,10 @@ struct Directory {
   
   mutating func appendNewFile(_ URL: URL) {
     arrayURL.append(URL)
+  }
+  
+  mutating func removeFile(_ URL: URL) {
+    arrayURL = arrayURL.filter({$0 != URL})
   }
   
 }
