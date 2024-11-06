@@ -9,16 +9,16 @@ import UIKit
 import SnapKit
 
 class FullImageViewController: UIViewController {
-   
+  
   var arrayImage: [UIImage] = []
-
+  
   static let key = "FullImageViewController"
   
   lazy var scrollView: UIScrollView = {
     var scroll = UIScrollView()
     scroll.showsHorizontalScrollIndicator = false
     scroll.showsVerticalScrollIndicator = false
- 
+    
     scroll.minimumZoomScale = 1
     scroll.maximumZoomScale = 5
     
@@ -36,25 +36,25 @@ class FullImageViewController: UIViewController {
     return stack
   }()
   
-    override func viewDidLoad() {
-        super.viewDidLoad()
-      view.backgroundColor = .colorBackground
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    view.backgroundColor = .colorBackground
+    
+    view.addSubview(scrollView)
+    
+    arrayImage.forEach({ image in
+      let imageStack = UIImageView()
+      imageStack.contentMode = .scaleAspectFit
+      imageStack.image = image
+      containerScrollStackView.addArrangedSubview(imageStack)
       
-      view.addSubview(scrollView)
-
-      for image in arrayImage {
-        let imageStack = UIImageView()
-        imageStack.contentMode = .scaleAspectFit
-        imageStack.image = image
-        containerScrollStackView.addArrangedSubview(imageStack)
-        
-        imageStack.snp.makeConstraints { make in
-          make.width.equalTo(view)
-        }
+      imageStack.snp.makeConstraints { make in
+        make.width.equalTo(view)
       }
-
-      updateViewConstraints()
-    }
+    })
+    
+    updateViewConstraints()
+  }
   
   override func updateViewConstraints() {
     super.updateViewConstraints()
@@ -72,13 +72,13 @@ class FullImageViewController: UIViewController {
       make.top.equalToSuperview()
       make.bottom.equalToSuperview()
       make.height.equalToSuperview()
-
+      
     }
   }
-
+  
 }
 
-extension FullImageViewController: UIScrollViewDelegate {  
+extension FullImageViewController: UIScrollViewDelegate {
   func viewForZooming(in scrollView: UIScrollView) -> UIView? {
     containerScrollStackView
   }

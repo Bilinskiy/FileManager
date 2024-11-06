@@ -39,7 +39,7 @@ class ViewController: UIViewController {
       rightBarButtonTrash.isEnabled = !arrayDelURL.isEmpty
     }
   }
-
+  
   lazy var emptyDirectoryLabel: UILabel = {
     var label = UILabel()
     label.font = label.font.withSize(25)
@@ -113,11 +113,11 @@ class ViewController: UIViewController {
     settingsSwipeSegment()
     
     asSelectView()
-     
+    
     addSubview()
     
     settingsNavigationController()
-
+    
     fileManager.fetchDirectoryContent()
     
     updateViewConstraints()
@@ -133,7 +133,7 @@ class ViewController: UIViewController {
   @objc func plusFolder() { addFileAlert() }
   
   @objc func selectItem() { viewMode = (viewMode == .select) ? .view : .select }
- 
+  
   @objc func trashItem() {
     fileManager.removeContent(arrayDelURL)
     tableView.reloadData()
@@ -151,7 +151,7 @@ class ViewController: UIViewController {
     default:
       break
     }
-
+    
     isSegment()
   }
   
@@ -166,7 +166,7 @@ class ViewController: UIViewController {
     let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(isSegmentSwipe))
     swipeLeft.direction = .left
     swipeRight.direction = .right
-
+    
     tableView.addGestureRecognizer(swipeLeft)
     collectionView.addGestureRecognizer(swipeRight)
   }
@@ -194,7 +194,7 @@ class ViewController: UIViewController {
         guard let password = alertPassword.textFields?.first?.text else {return}
         
         if self.keychain.get("password") != password { self.errorPasswordAlert() }
-
+        
       }
       
       alertPassword.addAction(checkPassword)
@@ -243,10 +243,10 @@ class ViewController: UIViewController {
     alert.addAction(createFolder)
     alert.addAction(addImage)
     alert.addAction(cancel)
-
+    
     present(alert, animated: true)
   }
-
+  
   func addCreateFolderAlert() {
     let alertCreateFolder = UIAlertController(title: "Создание нового каталога", message: "Введите имя", preferredStyle: .alert)
     alertCreateFolder.addTextField()
@@ -256,9 +256,9 @@ class ViewController: UIViewController {
       guard let textFields = alertCreateFolder.textFields?.first?.text?.trimmingCharacters(in: .whitespaces), !textFields.isEmpty else {
         self.errorAlert("Заполните поле Имя")
         return}
-
+      
       self.fileManager.createFolder(textFields) ? nil : self.errorAlert("Такая папка существует")
-       
+      
       self.tableView.reloadData()
       self.collectionView.reloadData()
     }
@@ -296,7 +296,7 @@ class ViewController: UIViewController {
   
   func settingsNavigationController() {
     navigationItem.title = fileManager.currentCatalog.lastPathComponent
-
+    
     switch viewMode {
     case .view:
       navigationItem.rightBarButtonItems = [rightBarButtonPlusFolder, rightBarButtonSelectItem]
@@ -332,7 +332,7 @@ class ViewController: UIViewController {
     }
     
   }
-
+  
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
@@ -392,11 +392,11 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
       
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
-      arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
- 
+        arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
+        
       case .image:
-      arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
-
+        arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
+        
       default:
         break
       }
@@ -410,18 +410,18 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         viewFolder.fileManager.currentCatalog = folder
         navigationController?.pushViewController(viewFolder, animated: true)
       case .image:
-        let fullImageView = FullImageViewController()
         guard let firstImage = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path()) else {return}
-       
-        for url in fileManager.filterContent(.image) {
-          guard let image = UIImage(contentsOfFile: url.path()) else {return}
-          if url != fileManager.filterContent(.image)[indexPath.row] {
+        let fullImageView = FullImageViewController()
+        
+        fileManager.filterContent(.image).forEach({
+          guard let image = UIImage(contentsOfFile: $0.path()) else {return}
+          if $0 != fileManager.filterContent(.image)[indexPath.row] {
             fullImageView.arrayImage.append(image)
           }
-        }
+        })
         
-       fullImageView.arrayImage.insert(firstImage, at: 0)
-
+        fullImageView.arrayImage.insert(firstImage, at: 0)
+        
         fullImageView.modalPresentationStyle = .formSheet
         present(fullImageView, animated: true)
       default:
@@ -435,11 +435,11 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     switch viewMode {
     case .select:
       collectionView.deselectItem(at: indexPath, animated: true)
-    
+      
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
         arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.folder)[indexPath.row]})
-
+        
       case .image:
         arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.image)[indexPath.row]})
         
@@ -527,14 +527,14 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
       tableView.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
       
       switch TypeDirectory(rawValue: indexPath.section) {
-        case .folder:
-          arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
-    
-        case .image:
-          arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
-    
-        default:
-            break
+      case .folder:
+        arrayDelURL.append(fileManager.filterContent(.folder)[indexPath.row])
+        
+      case .image:
+        arrayDelURL.append(fileManager.filterContent(.image)[indexPath.row])
+        
+      default:
+        break
       }
     case .view:
       collectionView.deselectItem(at: indexPath, animated: false)
@@ -545,18 +545,18 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
         viewFolder.fileManager.currentCatalog = folder
         navigationController?.pushViewController(viewFolder, animated: true)
       case .image:
-        let fullImageView = FullImageViewController()
         guard let firstImage = UIImage(contentsOfFile: fileManager.filterContent(.image)[indexPath.row].path()) else {return}
-       
-        for url in fileManager.filterContent(.image) {
-          guard let image = UIImage(contentsOfFile: url.path()) else {return}
-          if url != fileManager.filterContent(.image)[indexPath.row] {
+        let fullImageView = FullImageViewController()
+        
+        fileManager.filterContent(.image).forEach({
+          guard let image = UIImage(contentsOfFile: $0.path()) else {return}
+          if $0 != fileManager.filterContent(.image)[indexPath.row] {
             fullImageView.arrayImage.append(image)
           }
-        }
+        })
         
-       fullImageView.arrayImage.insert(firstImage, at: 0)
-
+        fullImageView.arrayImage.insert(firstImage, at: 0)
+        
         fullImageView.modalPresentationStyle = .formSheet
         present(fullImageView, animated: true)
       default:
@@ -569,7 +569,7 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
     switch viewMode {
     case .select:
       tableView.deselectRow(at: indexPath, animated: true)
-
+      
       switch TypeDirectory(rawValue: indexPath.section) {
       case .folder:
         arrayDelURL = arrayDelURL.filter({$0 != fileManager.filterContent(.folder)[indexPath.row]})
@@ -584,7 +584,7 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
       collectionView.deselectItem(at: indexPath, animated: false)
     }
   }
-
+  
 }
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -592,16 +592,16 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     guard let imageURL = info[.imageURL] as? URL,
           let originalImage = info[.originalImage] as? UIImage
-      else {return}
+    else {return}
     
     let data = originalImage.jpegData(compressionQuality: 1)
-      
+    
     fileManager.addImage(URL: imageURL.lastPathComponent, data: data)
     
     tableView.reloadData()
     collectionView.reloadData()
     dismiss(animated: true)
   }
-
+  
 }
 
