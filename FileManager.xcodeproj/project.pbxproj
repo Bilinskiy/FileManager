@@ -10,11 +10,11 @@
 		D0094ACB2CD22AE000A72D28 /* FolderCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0094ACA2CD22AE000A72D28 /* FolderCollectionViewCell.swift */; };
 		D0094ACD2CD2329700A72D28 /* ImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0094ACC2CD2329700A72D28 /* ImageCollectionViewCell.swift */; };
 		D0094AD02CD247BC00A72D28 /* HeaderCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0094ACF2CD247BC00A72D28 /* HeaderCollectionView.swift */; };
+		D0382BE02CDE0D9900FD2D64 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D0382BDF2CDE0D9900FD2D64 /* KeychainSwift */; };
+		D0382BE32CDE0DA400FD2D64 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D0382BE22CDE0DA400FD2D64 /* SnapKit */; };
 		D069F70A2CCE3F5500341643 /* ImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D069F7092CCE3F5500341643 /* ImageTableViewCell.swift */; };
 		D069F70F2CCF8B3D00341643 /* FullImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D069F70E2CCF8B3D00341643 /* FullImageViewController.swift */; };
-		D097213D2CCA8CDB00E9050B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D097213C2CCA8CDB00E9050B /* SnapKit */; };
 		D0C11A772CD0F0D4004D54C5 /* Directory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0C11A762CD0F0D4004D54C5 /* Directory.swift */; };
-		D0DCF2B02CDBB63C0092EF8E /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D0DCF2AF2CDBB63C0092EF8E /* KeychainSwift */; };
 		D0FD00152CCB963F000C2F63 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD000C2CCB963F000C2F63 /* AppDelegate.swift */; };
 		D0FD00172CCB963F000C2F63 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD00122CCB963F000C2F63 /* SceneDelegate.swift */; };
 		D0FD00182CCB963F000C2F63 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0FD00132CCB963F000C2F63 /* ViewController.swift */; };
@@ -47,8 +47,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D0DCF2B02CDBB63C0092EF8E /* KeychainSwift in Frameworks */,
-				D097213D2CCA8CDB00E9050B /* SnapKit in Frameworks */,
+				D0382BE02CDE0D9900FD2D64 /* KeychainSwift in Frameworks */,
+				D0382BE32CDE0DA400FD2D64 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,8 +157,8 @@
 			);
 			name = FileManager;
 			packageProductDependencies = (
-				D097213C2CCA8CDB00E9050B /* SnapKit */,
-				D0DCF2AF2CDBB63C0092EF8E /* KeychainSwift */,
+				D0382BDF2CDE0D9900FD2D64 /* KeychainSwift */,
+				D0382BE22CDE0DA400FD2D64 /* SnapKit */,
 			);
 			productName = FileManager;
 			productReference = D09721052CCA869800E9050B /* FileManager.app */;
@@ -189,8 +189,8 @@
 			mainGroup = D09720FC2CCA869800E9050B;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D097213B2CCA8CDB00E9050B /* XCRemoteSwiftPackageReference "SnapKit" */,
-				D0DCF2AE2CDBB63C0092EF8E /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				D0382BDE2CDE0D9900FD2D64 /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				D0382BE12CDE0DA400FD2D64 /* XCRemoteSwiftPackageReference "SnapKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D09721062CCA869800E9050B /* Products */;
@@ -444,15 +444,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		D097213B2CCA8CDB00E9050B /* XCRemoteSwiftPackageReference "SnapKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.7.1;
-			};
-		};
-		D0DCF2AE2CDBB63C0092EF8E /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
+		D0382BDE2CDE0D9900FD2D64 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
 			requirement = {
@@ -460,18 +452,26 @@
 				minimumVersion = 24.0.0;
 			};
 		};
+		D0382BE12CDE0DA400FD2D64 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D097213C2CCA8CDB00E9050B /* SnapKit */ = {
+		D0382BDF2CDE0D9900FD2D64 /* KeychainSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D097213B2CCA8CDB00E9050B /* XCRemoteSwiftPackageReference "SnapKit" */;
-			productName = SnapKit;
-		};
-		D0DCF2AF2CDBB63C0092EF8E /* KeychainSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D0DCF2AE2CDBB63C0092EF8E /* XCRemoteSwiftPackageReference "keychain-swift" */;
+			package = D0382BDE2CDE0D9900FD2D64 /* XCRemoteSwiftPackageReference "keychain-swift" */;
 			productName = KeychainSwift;
+		};
+		D0382BE22CDE0DA400FD2D64 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D0382BE12CDE0DA400FD2D64 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
