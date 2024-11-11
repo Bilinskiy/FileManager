@@ -9,7 +9,6 @@ import Foundation
 
 protocol ManagerFileProtocol {
   var content: [Directory] {get set}
-  var fileManager: FileManager {get}
   var currentCatalog: URL {get set}
   func createFolder(_ nameFolder: String) -> Bool
   func fetchDirectoryContent()

@@ -2,8 +2,13 @@
   "colors" : [
     {
       "color" : {
-        "platform" : "ios",
-        "reference" : "systemBackgroundColor"
+        "color-space" : "srgb",
+        "components" : {
+          "alpha" : "1.000",
+          "blue" : "0.963",
+          "green" : "0.963",
+          "red" : "0.963"
+        }
       },
       "idiom" : "universal"
     },
@@ -15,8 +20,8 @@
         }
       ],
       "color" : {
-        "platform" : "osx",
-        "reference" : "controlBackgroundColor"
+        "platform" : "ios",
+        "reference" : "secondarySystemBackgroundColor"
       },
       "idiom" : "universal"
     }

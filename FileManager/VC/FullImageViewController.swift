@@ -18,12 +18,7 @@ class FullImageViewController: UIViewController {
     var scroll = UIScrollView()
     scroll.showsHorizontalScrollIndicator = false
     scroll.showsVerticalScrollIndicator = false
-    
-    scroll.minimumZoomScale = 1
-    scroll.maximumZoomScale = 5
-    
     scroll.isPagingEnabled = true
-    scroll.delegate = self
     scroll.addSubview(containerScrollStackView)
     return scroll
   }()
@@ -46,11 +41,27 @@ class FullImageViewController: UIViewController {
       let imageStack = UIImageView()
       imageStack.contentMode = .scaleAspectFit
       imageStack.image = image
-      containerScrollStackView.addArrangedSubview(imageStack)
+ 
+      let scroll = UIScrollView()
+      scroll.isScrollEnabled = false
+      scroll.minimumZoomScale = 1
+      scroll.maximumZoomScale = 5
+      scroll.delegate = self
+      scroll.addSubview(imageStack)
+  
+      containerScrollStackView.addArrangedSubview(scroll)
       
       imageStack.snp.makeConstraints { make in
-        make.width.equalTo(view)
+        make.centerX.equalToSuperview()
+        make.centerY.equalToSuperview()
+        make.width.equalTo(view.snp.width)
       }
+      
+      scroll.snp.makeConstraints { make in
+        make.width.equalTo(imageStack.snp.width)
+        make.height.equalTo(view.snp.height)
+      }
+      
     })
     
     updateViewConstraints()
@@ -80,6 +91,7 @@ class FullImageViewController: UIViewController {
 
 extension FullImageViewController: UIScrollViewDelegate {
   func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-    containerScrollStackView
+    scrollView.subviews.first
   }
+
 }

@@ -46,7 +46,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneDidBecomeActive(_ scene: UIScene) {
     // Called when the scene has moved from an inactive state to an active state.
     // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-    vc.securityAlert()
   }
 
   func sceneWillResignActive(_ scene: UIScene) {
@@ -57,6 +56,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneWillEnterForeground(_ scene: UIScene) {
     // Called as the scene transitions from the background to the foreground.
     // Use this method to undo the changes made on entering the background.
+    vc.securityAlert()
   }
 
   func sceneDidEnterBackground(_ scene: UIScene) {
